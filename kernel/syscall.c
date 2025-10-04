@@ -138,13 +138,34 @@ syscall(void)
 
   num = p->trapframe->a7;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    // Use num to lookup the system call function for num, call it,
-    // and store its return value in p->trapframe->a0
-  if(p->mask & (1 << num)) {
-  p->trapframe->a0 = -1;
-  return;
-}
-
+    
+    // Check if this system call is sandboxed
+    if(p->mask & (1 << num)) {
+      // For open and exec system calls, check if pathname matches allowed path
+      if(num == SYS_open || num == SYS_exec) {
+        // Get the pathname argument (first argument is in a0)
+        uint64 pathaddr = p->trapframe->a0;
+        char pathname[MAXPATH];
+        if(fetchstr(pathaddr, pathname, MAXPATH) >= 0) {
+          // Manual string comparison
+          int i;
+          for(i = 0; i < MAXPATH; i++) {
+            if(pathname[i] != p->allowed_path[i]) {
+              break;
+            }
+            if(pathname[i] == '\0') {
+              // Strings match - allow the system call
+              p->trapframe->a0 = syscalls[num]();
+              return;
+            }
+          }
+        }
+      }
+      // Block the system call if no exception applies
+      p->trapframe->a0 = -1;
+      return;
+    }
+    
     p->trapframe->a0 = syscalls[num]();
   } else {
     printf("%d %s: unknown sys call %d\n",
