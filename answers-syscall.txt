@@ -1,0 +1,14 @@
+1.Which function calls syscall?
+Ans:usertrap() from kernel/trap.c:68.
+
+2.What is p->trapframe->a7 and what does it represent?
+Ans:The value is the system call number, which in the case of xv6 system calls, ranges from 1 to 20.
+
+3.What was the previous mode?
+Ans:The previous mode was user mode, since system calls transitions from user to kernel space.
+
+4.Which assembly instruction causes the panic and which register is num?
+Ans:The faulting instruction is "lw a5, 0(zero)", and the register num is a5
+
+5.Which process caused the panic and what is its PID?
+Ans:The process is "init" and its PID is 1
