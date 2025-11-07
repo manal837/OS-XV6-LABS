@@ -3,17 +3,11 @@
 #include "user/user.h"
 #include "kernel/fcntl.h"
 
-int main(int argc, char *argv[])
-{
-    if(argc != 2){
-        printf("Usage: sixfive <file>\n");
-        exit(1);
-    }
-
-    int fd = open(argv[1], O_RDONLY);
+void process_file(char *filename) {
+    int fd = open(filename, O_RDONLY);
     if(fd < 0){
-        printf("sixfive: cannot open %s\n", argv[1]);
-        exit(1);
+        printf("sixfive: cannot open %s\n", filename);
+        return;
     }
 
     char buf;
@@ -23,7 +17,6 @@ int main(int argc, char *argv[])
     
     while(read(fd, &buf, 1) > 0){
         if(buf >= '0' && buf <= '9'){
-            // We're reading a digit
             num = num * 10 + (buf - '0');
             in_number = 1;
         } else {
@@ -37,25 +30,35 @@ int main(int argc, char *argv[])
             }
             
             if(in_number && is_sep){
-                // End of number, check if divisible by 5 or 6
                 if(num % 5 == 0 || num % 6 == 0){
                     printf("%d\n", num);
                 }
                 num = 0;
                 in_number = 0;
             } else if(in_number && !is_sep){
-                // Non-separator after number, reset
                 num = 0;
                 in_number = 0;
             }
         }
     }
     
-    // Check last number if file ends with a number
     if(in_number && (num % 5 == 0 || num % 6 == 0)){
         printf("%d\n", num);
     }
 
     close(fd);
+}
+
+int main(int argc, char *argv[])
+{
+    if(argc < 2){
+        printf("Usage: sixfive <file1> [file2] ...\n");
+        exit(1);
+    }
+
+    for(int i = 1; i < argc; i++){
+        process_file(argv[i]);
+    }
+    
     exit(0);
 }

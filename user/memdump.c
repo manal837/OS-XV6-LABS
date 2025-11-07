@@ -3,57 +3,7 @@
 #include "kernel/fcntl.h"
 
 void memdump(char *fmt, char *data);
-void memdump(char *fmt, char *data) {
-    char *p = data;
-    
-    for(int i = 0; fmt[i] != '\0'; i++) {
-        switch(fmt[i]) {
-            case 'i': {
-                // Print 4 bytes as 32-bit integer
-                int32_t *val = (int32_t*)p;
-                printf("%d\n", *val);
-                p += 4;
-                break;
-            }
-            case 'p': {
-                // Print 8 bytes as 64-bit integer in hex
-                uint64_t *val = (uint64_t*)p;
-                printf("%p\n", *val);
-                p += 8;
-                break;
-            }
-            case 'h': {
-                // Print 2 bytes as 16-bit integer
-                int16_t *val = (int16_t*)p;
-                printf("%d\n", *val);
-                p += 2;
-                break;
-            }
-            case 'c': {
-                // Print 1 byte as ASCII character
-                printf("%c\n", *p);
-                p += 1;
-                break;
-            }
-            case 's': {
-                // Print string from pointer
-                char **str_ptr = (char**)p;
-                printf("%s\n", *str_ptr);
-                p += 8;
-                break;
-            }
-            case 'S': {
-                // Print rest as null-terminated string
-                printf("%s\n", p);
-                return; // 'S' consumes the rest of the data
-            }
-            default:
-                // Unknown format character - skip
-                break;
-        }
-    }
-}
- 
+
 int
 main(int argc, char *argv[])
 {
@@ -110,6 +60,51 @@ main(int argc, char *argv[])
 void
 memdump(char *fmt, char *data)
 {
-  // Your code here.
-
+  char *p = data;
+    
+    for(int i = 0; fmt[i] != '\0'; i++) {
+        switch(fmt[i]) {
+            case 'i': {
+                // Print 4 bytes as 32-bit integer
+                int *val = (int*)p;
+                printf("%d\n", *val);
+                p += 4;
+                break;
+            }
+            case 'p': {
+                // Print 8 bytes as 64-bit integer in hex
+                unsigned long *val = (unsigned long*)p;
+                printf("%lx\n", *val);
+                p += 8;
+                break;
+            }
+            case 'h': {
+                // Print 2 bytes as 16-bit integer
+                short *val = (short*)p;
+                printf("%d\n", *val);
+                p += 2;
+                break;
+            }
+            case 'c': {
+                // Print 1 byte as ASCII character
+                printf("%c\n", *p);
+                p += 1;
+                break;
+            }
+            case 's': {
+                // Print string from pointer
+                char **str_ptr = (char**)p;
+                printf("%s\n", *str_ptr);
+                p += 8;
+                break;
+            }
+            case 'S': {
+                // Print rest as null-terminated string
+                printf("%s\n", p);
+                return;
+            }
+            default:
+                break;
+        }
+    }
 }
